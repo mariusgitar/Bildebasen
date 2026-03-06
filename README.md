@@ -49,6 +49,8 @@ Repoet inneholder workflow: `.github/workflows/deploy.yml`.
 - Filkort med navn, originalformat, størrelse og thumbnail
 - Velg output-format: JPG, PNG eller WEBP
 - HEIC/HEIF dekodes klientside til mellomformat før vanlig konverteringsflyt
+- HEIC/HEIF dekodes klientside til mellomformat før vanlig konverteringsflyt
+
 - Valgfri resize via bredde (bevarer proporsjoner automatisk)
 - Kvalitetsslider for JPG/WEBP (60–100 %)
 - PNG uten kunstig kvalitetsslider (tapsfri eksport)
@@ -56,12 +58,16 @@ Repoet inneholder workflow: `.github/workflows/deploy.yml`.
 - Tydelige tom-, laste- og feiltilstander
 
 Ikke inkludert i PR1: batch-zip, metadata, editor/crop.
+Ikke inkludert i PR1: batch-zip, metadata, editor/crop.
+
 
 ## Transformasjonsflyt
 
 Konverteringen følger denne rekkefølgen:
 
 1. Decode input-bilde (HEIC/HEIF dekodes først til et nettleservennlig mellomformat)
+1. Decode input-bilde (HEIC/HEIF dekodes først til et nettleservennlig mellomformat)
+
 2. Optional resize
 3. Encode til valgt output-format (med kvalitet når relevant)
 4. Download
@@ -101,3 +107,4 @@ src/
 
 - Enkelte HEIC/HEIF-filer (spesielt varianter med uvanlig metadata/sekvenser) kan feile i dekoding.
 - Ved dekodingsfeil vises en tydelig feilmelding per fil i UI.
+

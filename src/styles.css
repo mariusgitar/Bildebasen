@@ -122,6 +122,10 @@ body {
   width: 100%;
 }
 
+.settings-field input[type='range'] {
+  width: 100%;
+}
+
 .hint {
   color: #637083;
   font-size: 0.95rem;

@@ -174,7 +174,7 @@ export const ImageConverterApp = () => {
   return (
     <main className="app-shell">
       <header className="hero panel">
-        <h1>Image Converter</h1>
+        <h1>Bildebasen</h1>
         <p>
           Konverter bilder direkte i nettleseren. Alt skjer lokalt på din enhet,
           uten opplasting til server.
