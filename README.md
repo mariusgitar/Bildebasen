@@ -48,20 +48,31 @@ Repoet inneholder workflow: `.github/workflows/deploy.yml`.
 - Støttede input-format: JPG/JPEG, PNG, WEBP, HEIC/HEIF
 - Filkort med navn, originalformat, størrelse og thumbnail
 - Velg output-format: JPG, PNG eller WEBP
+<<<<<<< codex/add-image-resizing-and-quality-control-5hsqwi
 - HEIC/HEIF dekodes klientside til mellomformat før vanlig konverteringsflyt
+=======
+>>>>>>> main
 - Valgfri resize via bredde (bevarer proporsjoner automatisk)
 - Kvalitetsslider for JPG/WEBP (60–100 %)
 - PNG uten kunstig kvalitetsslider (tapsfri eksport)
 - Konverter og last ned filer
 - Tydelige tom-, laste- og feiltilstander
 
+<<<<<<< codex/add-image-resizing-and-quality-control-5hsqwi
 Ikke inkludert i PR1: batch-zip, metadata, editor/crop.
+=======
+Ikke inkludert i PR1: batch-zip, metadata, editor/crop, HEIC.
+>>>>>>> main
 
 ## Transformasjonsflyt
 
 Konverteringen følger denne rekkefølgen:
 
+<<<<<<< codex/add-image-resizing-and-quality-control-5hsqwi
 1. Decode input-bilde (HEIC/HEIF dekodes først til et nettleservennlig mellomformat)
+=======
+1. Decode input-bilde
+>>>>>>> main
 2. Optional resize
 3. Encode til valgt output-format (med kvalitet når relevant)
 4. Download
@@ -91,6 +102,7 @@ src/
 7. Bekreft at output-bildene får ny bredde og at høyde følger proporsjoner.
 8. Velg JPG/WEBP og juster kvalitet (f.eks. 60 % vs 100 %), konverter samme bilde og sammenlign filstørrelse visuelt/størrelsesmessig.
 9. Velg PNG og bekreft at kvalitetsslider ikke vises.
+<<<<<<< codex/add-image-resizing-and-quality-control-5hsqwi
 10. Velg HEIC/HEIF som input og eksporter til JPG.
 11. Velg HEIC/HEIF som input og eksporter til PNG.
 12. Test en uleselig/korrupt HEIC/HEIF og bekreft ryddig feilmelding.
@@ -101,3 +113,7 @@ src/
 
 - Enkelte HEIC/HEIF-filer (spesielt varianter med uvanlig metadata/sekvenser) kan feile i dekoding.
 - Ved dekodingsfeil vises en tydelig feilmelding per fil i UI.
+=======
+10. Last opp en ugyldig fil (f.eks. `.gif`) og bekreft feilmelding.
+11. Verifiser at UI fortsatt er ryddig og forståelig på desktop.
+>>>>>>> main
