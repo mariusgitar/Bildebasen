@@ -2,17 +2,35 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { convertImageFile } from '../lib/imageConverter';
 import { downloadBlob } from '../lib/download';
 import { validateImageFile } from '../lib/fileValidation';
-import type { OutputImageFormat, UploadedImage } from '../types/imageTypes';
+import type { OutputImageFormat, ResizeMode, UploadedImage } from '../types/imageTypes';
 import { FileList } from './FileList';
 import { OutputSettings } from './OutputSettings';
 import { UploadDropzone } from './UploadDropzone';
 
 const createId = () => crypto.randomUUID();
 
+const MIN_QUALITY_PERCENT = 60;
+const MAX_QUALITY_PERCENT = 100;
+
+const clampQualityPercent = (value: number): number =>
+  Math.min(MAX_QUALITY_PERCENT, Math.max(MIN_QUALITY_PERCENT, value));
+
+const parseResizeWidth = (width: string): number | undefined => {
+  const parsed = Number(width);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return undefined;
+  }
+
+  return Math.round(parsed);
+};
 
 export const ImageConverterApp = () => {
   const [files, setFiles] = useState<UploadedImage[]>([]);
   const [outputFormat, setOutputFormat] = useState<OutputImageFormat>('jpg');
+  const [resizeMode, setResizeMode] = useState<ResizeMode>('none');
+  const [resizeWidth, setResizeWidth] = useState('');
+  const [qualityPercent, setQualityPercent] = useState(92);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
 
@@ -72,6 +90,13 @@ export const ImageConverterApp = () => {
       return;
     }
 
+    const parsedWidth = parseResizeWidth(resizeWidth);
+
+    if (resizeMode === 'width' && !parsedWidth) {
+      setErrorMessage('Angi en gyldig bredde større enn 0 for resize.');
+      return;
+    }
+
     setErrorMessage(null);
     setIsConverting(true);
     setStatusForAll('konverterer');
@@ -80,7 +105,24 @@ export const ImageConverterApp = () => {
 
     for (const item of files) {
       try {
-        const result = await convertImageFile(item.file, outputFormat);
+        const result = await convertImageFile(item.file, outputFormat, {
+          resizeSettings:
+            resizeMode === 'width' && parsedWidth
+              ? {
+                  mode: 'width',
+                  width: parsedWidth,
+                }
+              : {
+                  mode: 'none',
+                },
+          encodeSettings:
+            outputFormat === 'png'
+              ? {}
+              : {
+                  quality: qualityPercent / 100,
+                },
+        });
+
         downloadBlob(result.blob, result.filename);
         setFiles((prev) =>
           prev.map((file) =>
@@ -90,10 +132,7 @@ export const ImageConverterApp = () => {
           ),
         );
       } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Ukjent feil ved konvertering av fil.';
+        const message = error instanceof Error ? error.message : 'Ukjent feil ved konvertering av fil.';
 
         failures.push(`${item.name}: ${message}`);
         setFiles((prev) =>
@@ -137,8 +176,14 @@ export const ImageConverterApp = () => {
       <UploadDropzone onFilesSelected={addFiles} disabled={isConverting} />
 
       <OutputSettings
-        value={outputFormat}
-        onChange={setOutputFormat}
+        outputFormat={outputFormat}
+        resizeMode={resizeMode}
+        resizeWidth={resizeWidth}
+        qualityPercent={qualityPercent}
+        onOutputFormatChange={setOutputFormat}
+        onResizeModeChange={setResizeMode}
+        onResizeWidthChange={setResizeWidth}
+        onQualityPercentChange={(value) => setQualityPercent(clampQualityPercent(value))}
         onConvertAll={convertAll}
         disabled={!hasFiles}
         isConverting={isConverting}
