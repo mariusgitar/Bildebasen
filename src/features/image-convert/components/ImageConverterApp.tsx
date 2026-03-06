@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { convertImageFile } from '../lib/imageConverter';
+import { decodeHeicToBrowserImage } from '../lib/heicDecoder';
 import { downloadBlob } from '../lib/download';
 import { validateImageFile } from '../lib/fileValidation';
 import type { OutputImageFormat, ResizeMode, UploadedImage } from '../types/imageTypes';
@@ -46,28 +47,36 @@ export const ImageConverterApp = () => {
 
   const hasFiles = files.length > 0;
 
-  const addFiles = (incomingFiles: File[]) => {
+  const addFiles = async (incomingFiles: File[]) => {
     const nextFiles: UploadedImage[] = [];
     const invalidMessages: string[] = [];
 
-    incomingFiles.forEach((file) => {
+    for (const file of incomingFiles) {
       const validation = validateImageFile(file);
 
       if (!validation.valid) {
         invalidMessages.push(`${file.name}: ${validation.message}`);
-        return;
+        continue;
       }
 
-      nextFiles.push({
-        id: createId(),
-        file,
-        name: file.name,
-        mimeType: validation.mimeType,
-        size: file.size,
-        previewUrl: URL.createObjectURL(file),
-        status: 'klar',
-      });
-    });
+      try {
+        const sourceFile = await decodeHeicToBrowserImage(file);
+
+        nextFiles.push({
+          id: createId(),
+          file,
+          sourceFile,
+          name: file.name,
+          mimeType: validation.mimeType,
+          size: file.size,
+          previewUrl: URL.createObjectURL(sourceFile),
+          status: 'klar',
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Kunne ikke lese filen.';
+        invalidMessages.push(`${file.name}: ${message}`);
+      }
+    }
 
     if (invalidMessages.length > 0) {
       setErrorMessage(invalidMessages.join(' '));
@@ -105,7 +114,7 @@ export const ImageConverterApp = () => {
 
     for (const item of files) {
       try {
-        const result = await convertImageFile(item.file, outputFormat, {
+        const result = await convertImageFile(item.sourceFile, outputFormat, {
           resizeSettings:
             resizeMode === 'width' && parsedWidth
               ? {
