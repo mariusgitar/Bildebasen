@@ -3,6 +3,8 @@ import type { UploadedImage } from '../types/imageTypes';
 
 interface FileListProps {
   files: UploadedImage[];
+  onRemoveFile: (id: string) => void;
+  disableRemove?: boolean;
 }
 
 const formatLabelFromMime = (mimeType: string): string => {
@@ -14,10 +16,18 @@ const formatLabelFromMime = (mimeType: string): string => {
     return 'PNG';
   }
 
+  if (mimeType === 'image/heic') {
+    return 'HEIC';
+  }
+
+  if (mimeType === 'image/heif') {
+    return 'HEIF';
+  }
+
   return 'WEBP';
 };
 
-export const FileList = ({ files }: FileListProps) => {
+export const FileList = ({ files, onRemoveFile, disableRemove = false }: FileListProps) => {
   if (files.length === 0) {
     return (
       <section className="panel">
@@ -33,6 +43,16 @@ export const FileList = ({ files }: FileListProps) => {
       <ul className="file-grid">
         {files.map((file) => (
           <li key={file.id} className="file-card">
+            <button
+              type="button"
+              className="file-card__remove"
+              onClick={() => onRemoveFile(file.id)}
+              disabled={disableRemove}
+              aria-label={`Fjern ${file.name}`}
+              title="Fjern bilde"
+            >
+              ×
+            </button>
             <img src={file.previewUrl} alt={`Forhåndsvisning av ${file.name}`} />
             <div className="file-card__meta">
               <strong title={file.name}>{file.name}</strong>

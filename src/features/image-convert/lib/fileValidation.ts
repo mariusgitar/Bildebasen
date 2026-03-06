@@ -4,6 +4,8 @@ const SUPPORTED_MIME_TYPES: InputImageMimeType[] = [
   'image/jpeg',
   'image/png',
   'image/webp',
+  'image/heic',
+  'image/heif',
 ];
 
 const normalizeJpg = (name: string): string =>
@@ -22,6 +24,14 @@ const detectMimeTypeFromName = (file: File): InputImageMimeType | null => {
 
   if (normalizedName.endsWith('.webp')) {
     return 'image/webp';
+  }
+
+  if (normalizedName.endsWith('.heic')) {
+    return 'image/heic';
+  }
+
+  if (normalizedName.endsWith('.heif')) {
+    return 'image/heif';
   }
 
   return null;
@@ -48,7 +58,7 @@ export const validateImageFile = (
   return {
     valid: false,
     message:
-      'Ugyldig filtype. Kun JPG/JPEG, PNG og WEBP er støttet i denne versjonen.',
+      'Ugyldig filtype. Kun JPG/JPEG, PNG, WEBP, HEIC og HEIF er støttet i denne versjonen.',
   };
 };
 
