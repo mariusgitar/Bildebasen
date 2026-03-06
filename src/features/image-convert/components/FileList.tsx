@@ -14,6 +14,14 @@ const formatLabelFromMime = (mimeType: string): string => {
     return 'PNG';
   }
 
+  if (mimeType === 'image/heic') {
+    return 'HEIC';
+  }
+
+  if (mimeType === 'image/heif') {
+    return 'HEIF';
+  }
+
   return 'WEBP';
 };
 
