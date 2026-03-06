@@ -71,23 +71,39 @@ body {
   border: 1px solid #1d4ed8;
 }
 
-.settings-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+.settings-grid {
+  display: grid;
   gap: 12px;
+  margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-.settings-row select {
+.settings-field {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.settings-field label {
+  font-weight: 600;
+}
+
+.settings-field select,
+.settings-field input[type='number'] {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   padding: 10px;
   min-width: 120px;
 }
 
+.settings-field input[type='range'] {
+  width: 100%;
+}
+
 .hint {
   color: #6b7280;
   font-size: 0.95rem;
+  margin: 0;
 }
 
 .error-banner {

@@ -1,7 +1,7 @@
 import { useRef, useState, type ChangeEvent, type DragEvent } from 'react';
 
 interface UploadDropzoneProps {
-  onFilesSelected: (files: File[]) => void;
+  onFilesSelected: (files: File[]) => void | Promise<void>;
   disabled?: boolean;
 }
 
@@ -59,12 +59,13 @@ export const UploadDropzone = ({
         >
           Velg filer
         </button>
-        <p className="hint">Støtter JPG/JPEG, PNG og WEBP.</p>
+        <p className="hint">Støtter JPG/JPEG, PNG, WEBP, HEIC og HEIF.</p>
+        <p className="hint">Merk: Enkelte HEIC/HEIF-filer kan variere i støtte i nettleser.</p>
         <input
           ref={inputRef}
           type="file"
           multiple
-          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif"
           onChange={onInputChange}
           hidden
         />
