@@ -1,0 +1,158 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1f2937;
+  background-color: #f3f4f6;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.app-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.hero h1 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.hero p {
+  margin: 6px 0;
+}
+
+.dropzone {
+  border: 2px dashed #9ca3af;
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.dropzone--active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.button {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #111827;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.button--primary {
+  background: #2563eb;
+  color: #fff;
+  border: 1px solid #1d4ed8;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-row select {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 120px;
+}
+
+.hint {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.empty-state {
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+.file-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.file-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.file-card img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+  background: #e5e7eb;
+}
+
+.file-card__meta {
+  padding: 10px;
+  display: grid;
+  gap: 3px;
+}
+
+.file-card__meta strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status--klar,
+.status--ferdig {
+  color: #166534;
+}
+
+.status--konverterer {
+  color: #1d4ed8;
+}
+
+.status--feil {
+  color: #991b1b;
+}
