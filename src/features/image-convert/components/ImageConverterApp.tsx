@@ -93,6 +93,18 @@ export const ImageConverterApp = () => {
     setFiles((prev) => prev.map((item) => ({ ...item, status, errorMessage: undefined })));
   };
 
+  const removeFile = (id: string) => {
+    setFiles((prev) => {
+      const targetFile = prev.find((item) => item.id === id);
+
+      if (targetFile) {
+        URL.revokeObjectURL(targetFile.previewUrl);
+      }
+
+      return prev.filter((item) => item.id !== id);
+    });
+  };
+
   const convertAll = async () => {
     if (!hasFiles) {
       setErrorMessage('Legg til minst én fil før konvertering.');
@@ -200,7 +212,7 @@ export const ImageConverterApp = () => {
 
       {errorMessage ? <div className="error-banner">{errorMessage}</div> : null}
 
-      <FileList files={files} />
+      <FileList files={files} onRemoveFile={removeFile} disableRemove={isConverting} />
     </main>
   );
 };
