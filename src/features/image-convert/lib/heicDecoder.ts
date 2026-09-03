@@ -19,60 +19,29 @@ export const isHeicFile = (file: File): boolean => {
   return extension === 'heic' || extension === 'heif';
 };
 
-const loadImageFromFile = async (file: File): Promise<HTMLImageElement> => {
-  const previewUrl = URL.createObjectURL(file);
-
-  try {
-    const image = new Image();
-    image.src = previewUrl;
-
-    await new Promise<void>((resolve, reject) => {
-      image.onload = () => resolve();
-      image.onerror = () => reject(new Error('Kunne ikke dekode filen.'));
-    });
-
-    return image;
-  } finally {
-    URL.revokeObjectURL(previewUrl);
-  }
-};
-
-const canvasToPngBlob = async (canvas: HTMLCanvasElement): Promise<Blob> =>
-  new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error('Kunne ikke lage mellomformat for HEIC/HEIF.'));
-        return;
-      }
-
-      resolve(blob);
-    }, 'image/png');
-  });
-
 export const decodeHeicToBrowserImage = async (file: File): Promise<File> => {
   if (!isHeicFile(file)) {
     return file;
   }
 
   try {
-    const image = await loadImageFromFile(file);
-    const canvas = document.createElement('canvas');
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
+    const { default: heic2any } = await import('heic2any');
+    const converted = await heic2any({
+      blob: file,
+      toType: 'image/png',
+      quality: 1,
+    });
+    const blob = Array.isArray(converted) ? converted[0] : converted;
 
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      throw new Error('Nettleseren støtter ikke canvas-kontekst.');
+    if (!blob) {
+      throw new Error('HEIC/HEIF-dekoderen returnerte ikke et bilde.');
     }
 
-    ctx.drawImage(image, 0, 0);
-
-    const blob = await canvasToPngBlob(canvas);
     const outputName = file.name.replace(/\.[^.]+$/, '.png');
-
     return new File([blob], outputName, { type: 'image/png' });
   } catch {
-    throw new Error('Kunne ikke lese HEIC/HEIF-filen. Filen eller nettleserstøtten kan være begrenset.');
+    throw new Error(
+      'Kunne ikke lese HEIC/HEIF-filen. Filen kan bruke en variant som ikke støttes.',
+    );
   }
 };

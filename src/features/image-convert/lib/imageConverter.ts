@@ -4,6 +4,7 @@ import type {
   OutputImageFormat,
   ResizeSettings,
 } from '../types/imageTypes';
+import { decodeHeicToBrowserImage } from './heicDecoder';
 
 const OUTPUT_TO_MIME: Record<OutputImageFormat, string> = {
   jpg: 'image/jpeg',
@@ -87,7 +88,8 @@ export const convertImageFile = async (
     encodeSettings?: EncodeSettings;
   },
 ): Promise<ConversionResult> => {
-  const image = await decodeImage(file);
+  const browserImageFile = await decodeHeicToBrowserImage(file);
+  const image = await decodeImage(browserImageFile);
   const targetSize = getTargetSize(image, options?.resizeSettings ?? { mode: 'none' });
   const canvas = document.createElement('canvas');
   canvas.width = targetSize.width;

@@ -60,7 +60,10 @@ export const FileList = ({ files, onRemoveFile, disableRemove = false }: FileLis
               <span>Størrelse: {formatFileSize(file.size)}</span>
               <span className={`status status--${file.status}`}>
                 {file.status === 'klar' && 'Klar for konvertering'}
-                {file.status === 'konverterer' && 'Konverterer...'}
+                {file.status === 'konverterer' &&
+                  (file.mimeType === 'image/heic' || file.mimeType === 'image/heif'
+                    ? 'Dekoder HEIC/HEIF – dette kan ta litt ekstra tid...'
+                    : 'Konverterer...')}
                 {file.status === 'ferdig' && 'Ferdig'}
                 {file.status === 'feil' && file.errorMessage}
               </span>
