@@ -60,7 +60,9 @@ export const UploadDropzone = ({
           Velg filer
         </button>
         <p className="hint">Støtter JPG/JPEG, PNG, WEBP, HEIC og HEIF.</p>
-        <p className="hint">Merk: Enkelte HEIC/HEIF-filer kan variere i støtte i nettleser.</p>
+        <p className="hint">
+          HEIC/HEIF dekodes lokalt og kan derfor ta litt lengre tid enn andre formater.
+        </p>
         <input
           ref={inputRef}
           type="file"

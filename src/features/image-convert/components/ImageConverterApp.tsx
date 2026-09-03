@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { convertImageFile } from '../lib/imageConverter';
-import { decodeHeicToBrowserImage } from '../lib/heicDecoder';
+import { decodeHeicToBrowserImage, isHeicFile } from '../lib/heicDecoder';
 import { downloadBlob } from '../lib/download';
 import { validateImageFile } from '../lib/fileValidation';
 import type { OutputImageFormat, ResizeMode, UploadedImage } from '../types/imageTypes';
@@ -75,6 +75,20 @@ export const ImageConverterApp = () => {
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Kunne ikke lese filen.';
         invalidMessages.push(`${file.name}: ${message}`);
+
+        if (isHeicFile(file)) {
+          nextFiles.push({
+            id: createId(),
+            file,
+            sourceFile: file,
+            name: file.name,
+            mimeType: validation.mimeType,
+            size: file.size,
+            previewUrl: URL.createObjectURL(file),
+            status: 'feil',
+            errorMessage: message,
+          });
+        }
       }
     }
 
