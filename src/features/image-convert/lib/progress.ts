@@ -8,5 +8,9 @@ export const CONVERSION_STATUS_MESSAGES = [
   'Krymper uten å klage...',
 ] as const;
 
-export const getConversionStatusMessage = (fileIndex: number): string =>
-  CONVERSION_STATUS_MESSAGES[fileIndex % CONVERSION_STATUS_MESSAGES.length];
+export const getConversionStatusMessage = (completed: number, total: number): string => {
+  const percent = total > 0 ? (completed / total) * 100 : 0;
+  const messageIndex = percent >= 90 ? 2 : percent >= 50 ? 1 : 0;
+
+  return CONVERSION_STATUS_MESSAGES[messageIndex];
+};

@@ -44,11 +44,14 @@ export const ImageConverterApp = () => {
   const [resizeWidth, setResizeWidth] = useState('');
   const [qualityPercent, setQualityPercent] = useState(92);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isReadingFiles, setIsReadingFiles] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const [isCreatingZip, setIsCreatingZip] = useState(false);
   const [conversionResults, setConversionResults] = useState<ConversionResult[]>([]);
   const [progress, setProgress] = useState<{
+    phase: 'reading' | 'converting';
     current: number;
+    completed: number;
     total: number;
     statusMessage: string;
     complete: boolean;
@@ -67,14 +70,35 @@ export const ImageConverterApp = () => {
   const hasFiles = files.length > 0;
 
   const addFiles = async (incomingFiles: File[]) => {
+    if (incomingFiles.length === 0) {
+      return;
+    }
+
     const nextFiles: UploadedImage[] = [];
     const invalidMessages: string[] = [];
 
-    for (const file of incomingFiles) {
+    setIsReadingFiles(true);
+    setProgress({
+      phase: 'reading',
+      current: 0,
+      completed: 0,
+      total: incomingFiles.length,
+      statusMessage: 'Gjør filene klare for konvertering.',
+      complete: false,
+    });
+
+    // Give React and the browser one paint opportunity before file decoding starts.
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+    for (const [index, file] of incomingFiles.entries()) {
       const validation = validateImageFile(file);
 
       if (!validation.valid) {
         invalidMessages.push(`${file.name}: ${validation.message}`);
+        setProgress((previous) => previous && {
+          ...previous,
+          completed: index + 1,
+        });
         continue;
       }
 
@@ -109,6 +133,11 @@ export const ImageConverterApp = () => {
           });
         }
       }
+
+      setProgress((previous) => previous && {
+        ...previous,
+        completed: index + 1,
+      });
     }
 
     if (invalidMessages.length > 0) {
@@ -119,9 +148,11 @@ export const ImageConverterApp = () => {
 
     if (nextFiles.length > 0) {
       setConversionResults([]);
-      setProgress(null);
       setFiles((prev) => [...prev, ...nextFiles]);
     }
+
+    setProgress(null);
+    setIsReadingFiles(false);
   };
 
   const setStatusForAll = (status: UploadedImage['status']) => {
@@ -165,9 +196,11 @@ export const ImageConverterApp = () => {
 
     for (const [index, item] of files.entries()) {
       setProgress({
+        phase: 'converting',
         current: index + 1,
+        completed: index,
         total: files.length,
-        statusMessage: getConversionStatusMessage(index),
+        statusMessage: getConversionStatusMessage(index, files.length),
         complete: false,
       });
 
@@ -220,7 +253,9 @@ export const ImageConverterApp = () => {
       setProgress(null);
     } else {
       setProgress({
+        phase: 'converting',
         current: files.length,
+        completed: files.length,
         total: files.length,
         statusMessage: '',
         complete: true,
@@ -268,7 +303,7 @@ export const ImageConverterApp = () => {
         <p className="hint">{fileCountLabel}</p>
       </header>
 
-      <UploadDropzone onFilesSelected={addFiles} disabled={isConverting} />
+      <UploadDropzone onFilesSelected={addFiles} disabled={isConverting || isReadingFiles} />
 
       <OutputSettings
         outputFormat={outputFormat}
@@ -280,7 +315,7 @@ export const ImageConverterApp = () => {
         onResizeWidthChange={setResizeWidth}
         onQualityPercentChange={(value) => setQualityPercent(clampQualityPercent(value))}
         onConvertAll={convertAll}
-        disabled={!hasFiles}
+        disabled={!hasFiles || isReadingFiles}
         isConverting={isConverting}
       />
 

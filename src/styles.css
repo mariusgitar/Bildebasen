@@ -172,7 +172,13 @@ body {
   height: 100%;
   border-radius: inherit;
   background: #4f72f0;
-  transition: width 180ms ease-out;
+  transition: width 360ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .conversion-progress__fill {
+    transition: none;
+  }
 }
 
 .conversion-progress--complete .conversion-progress__fill {
