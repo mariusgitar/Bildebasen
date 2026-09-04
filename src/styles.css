@@ -136,6 +136,60 @@ body {
   padding: 12px;
 }
 
+.conversion-progress {
+  display: grid;
+  gap: 10px;
+  padding: 15px 16px;
+  border: 1px solid #cbd7fb;
+  border-radius: 12px;
+  background: #f3f6ff;
+}
+
+.conversion-progress--complete {
+  border-color: #a7d7b7;
+  background: #f0f9f3;
+}
+
+.conversion-progress__labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.conversion-progress__labels span {
+  color: #53627a;
+}
+
+.conversion-progress__track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dce4f5;
+}
+
+.conversion-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #4f72f0;
+  transition: width 180ms ease-out;
+}
+
+.conversion-progress--complete .conversion-progress__fill {
+  background: #2f8a50;
+}
+
+.download-options {
+  display: grid;
+  gap: 10px;
+}
+
+.download-options__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
 .empty-state {
   color: #637083;
   margin-bottom: 0;
