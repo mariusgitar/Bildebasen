@@ -1,9 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { convertImageFile } from '../lib/imageConverter';
 import { decodeHeicToBrowserImage, isHeicFile } from '../lib/heicDecoder';
-import { downloadBlob } from '../lib/download';
+import {
+  downloadAllIndividually,
+  downloadBlob,
+  downloadResultsAsZip,
+} from '../lib/download';
 import { validateImageFile } from '../lib/fileValidation';
-import type { OutputImageFormat, ResizeMode, UploadedImage } from '../types/imageTypes';
+import { getConversionStatusMessage } from '../lib/progress';
+import type {
+  ConversionResult,
+  OutputImageFormat,
+  ResizeMode,
+  UploadedImage,
+} from '../types/imageTypes';
+import { ConversionProgress } from './ConversionProgress';
 import { FileList } from './FileList';
 import { OutputSettings } from './OutputSettings';
 import { UploadDropzone } from './UploadDropzone';
@@ -34,6 +45,14 @@ export const ImageConverterApp = () => {
   const [qualityPercent, setQualityPercent] = useState(92);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
+  const [isCreatingZip, setIsCreatingZip] = useState(false);
+  const [conversionResults, setConversionResults] = useState<ConversionResult[]>([]);
+  const [progress, setProgress] = useState<{
+    current: number;
+    total: number;
+    statusMessage: string;
+    complete: boolean;
+  } | null>(null);
 
   const previewsRef = useRef<string[]>([]);
 
@@ -99,6 +118,8 @@ export const ImageConverterApp = () => {
     }
 
     if (nextFiles.length > 0) {
+      setConversionResults([]);
+      setProgress(null);
       setFiles((prev) => [...prev, ...nextFiles]);
     }
   };
@@ -108,6 +129,8 @@ export const ImageConverterApp = () => {
   };
 
   const removeFile = (id: string) => {
+    setConversionResults([]);
+    setProgress(null);
     setFiles((prev) => {
       const targetFile = prev.find((item) => item.id === id);
 
@@ -134,11 +157,20 @@ export const ImageConverterApp = () => {
 
     setErrorMessage(null);
     setIsConverting(true);
+    setConversionResults([]);
     setStatusForAll('konverterer');
 
     const failures: string[] = [];
+    const results: ConversionResult[] = [];
 
-    for (const item of files) {
+    for (const [index, item] of files.entries()) {
+      setProgress({
+        current: index + 1,
+        total: files.length,
+        statusMessage: getConversionStatusMessage(index),
+        complete: false,
+      });
+
       try {
         const result = await convertImageFile(item.sourceFile, outputFormat, {
           resizeSettings:
@@ -158,7 +190,12 @@ export const ImageConverterApp = () => {
                 },
         });
 
-        downloadBlob(result.blob, result.filename);
+        results.push(result);
+
+        if (files.length === 1) {
+          downloadBlob(result.blob, result.filename);
+        }
+
         setFiles((prev) =>
           prev.map((file) =>
             file.id === item.id
@@ -180,9 +217,32 @@ export const ImageConverterApp = () => {
 
     if (failures.length > 0) {
       setErrorMessage(failures.join(' '));
+      setProgress(null);
+    } else {
+      setProgress({
+        current: files.length,
+        total: files.length,
+        statusMessage: '',
+        complete: true,
+      });
     }
 
+    setConversionResults(files.length > 1 ? results : []);
     setIsConverting(false);
+  };
+
+  const downloadZip = async () => {
+    setIsCreatingZip(true);
+    setErrorMessage(null);
+
+    try {
+      await downloadResultsAsZip(conversionResults);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Kunne ikke lage ZIP-filen.';
+      setErrorMessage(message);
+    } finally {
+      setIsCreatingZip(false);
+    }
   };
 
   const fileCountLabel = useMemo(() => {
@@ -223,6 +283,33 @@ export const ImageConverterApp = () => {
         disabled={!hasFiles}
         isConverting={isConverting}
       />
+
+      {progress ? <ConversionProgress {...progress} /> : null}
+
+      {conversionResults.length > 0 ? (
+        <section className="download-options panel" aria-labelledby="download-heading">
+          <h2 id="download-heading">Last ned konverterte bilder</h2>
+          <p className="hint">Velg én samlet ZIP-fil eller last ned filene enkeltvis.</p>
+          <div className="download-options__actions">
+            <button
+              className="button button--primary"
+              type="button"
+              onClick={downloadZip}
+              disabled={isCreatingZip}
+            >
+              {isCreatingZip ? 'Lager ZIP...' : 'Last ned alle som ZIP'}
+            </button>
+            <button
+              className="button"
+              type="button"
+              onClick={() => downloadAllIndividually(conversionResults)}
+              disabled={isCreatingZip}
+            >
+              Last ned enkeltvis
+            </button>
+          </div>
+        </section>
+      ) : null}
 
       {errorMessage ? <div className="error-banner">{errorMessage}</div> : null}
 
